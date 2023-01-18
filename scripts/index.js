@@ -32,6 +32,7 @@ async function main() {
   // ?new=true
   // ?charge=-120
   // ?graph=3d
+  // ?drag=fix
 
   const emptyData = {
     nodes: [],
@@ -57,6 +58,8 @@ async function main() {
   // force-directed graph
   var graphCharge = Number(params.get("charge"));
   if (!graphCharge) graphCharge = -120;
+
+  var dragFix = params.get("drag");
 
   var graphType = params.get("graph");
   if (!graphType) graphType = "2d";
@@ -493,6 +496,45 @@ async function main() {
       currentGraph = ForceGraph3D()(elGraph)
         .graphData(JSON.parse(editor.getValue()))
         .width(document.querySelector(".right").offsetWidth)
+        .backgroundColor("#000011")
+        .linkDirectionalParticles("value")
+        .linkDirectionalParticleWidth(2)
+        .linkDirectionalParticleSpeed((d) => d.value * 0.001)
+        .linkDirectionalParticleColor((d) => {
+          return currentGraph
+            .graphData()
+            .nodes.find((node) => node.id === d.source).color;
+        })
+        .linkLabel((link) => {
+          return link.source.id + " -> " + link.target.id;
+        })
+        .nodeLabel((node) => {
+          return (
+            node.id +
+            " [" +
+            node.group +
+            "] (" +
+            JSON.parse(editor.getValue()).links.filter(
+              (link) => link.source === node.id || link.target === node.id
+            ).length +
+            " links)"
+          );
+        })
+        .nodeId("id")
+        .onNodeDragEnd((node) => {
+          if (dragFix === "fix") {
+            node.fx = node.x;
+            node.fy = node.y;
+          }
+        })
+        .onNodeClick((n) => {
+          const jsonNode = JSON.parse(editor.getValue()).nodes.find(
+            (node) => node.id === n.id && node.hasOwnProperty("meta")
+          );
+          if (jsonNode && isValidHttpUrl(jsonNode.meta)) {
+            window.open(jsonNode.meta, "_blank");
+          }
+        })
         .nodeAutoColorBy("group")
         .nodeThreeObject((node) => {
           const sprite = new SpriteText(node.id);
@@ -509,7 +551,40 @@ async function main() {
         .width(document.querySelector(".right").offsetWidth)
         .backgroundColor("#1c1f24")
         .linkColor(() => "rgba(255,255,255,0.2)")
+        .linkDirectionalParticles("value")
+        .linkDirectionalParticleWidth(2)
+        .linkDirectionalParticleSpeed((d) => d.value * 0.001)
+        .linkDirectionalParticleColor((d) => d.source.color)
+        .linkLabel((link) => {
+          return link.source.id + " -> " + link.target.id;
+        })
+        .nodeLabel((node) => {
+          return (
+            node.id +
+            " [" +
+            node.group +
+            "] (" +
+            JSON.parse(editor.getValue()).links.filter(
+              (link) => link.source === node.id || link.target === node.id
+            ).length +
+            " links)"
+          );
+        })
         .nodeId("id")
+        .onNodeDragEnd((node) => {
+          if (dragFix === "fix") {
+            node.fx = node.x;
+            node.fy = node.y;
+          }
+        })
+        .onNodeClick((n) => {
+          const jsonNode = JSON.parse(editor.getValue()).nodes.find(
+            (node) => node.id === n.id && node.hasOwnProperty("meta")
+          );
+          if (jsonNode && isValidHttpUrl(jsonNode.meta)) {
+            window.open(jsonNode.meta, "_blank");
+          }
+        })
         .nodeAutoColorBy("group")
         .nodeCanvasObject((node, ctx, globalScale) => {
           const nodeId = node.id;
@@ -556,6 +631,16 @@ async function main() {
       currentGraph.d3Force("charge").strength(graphCharge);
       graphType = "2d";
     }
+  }
+
+  function isValidHttpUrl(string) {
+    let url;
+    try {
+      url = new URL(string);
+    } catch (_) {
+      return false;
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
   }
 }
 main();
