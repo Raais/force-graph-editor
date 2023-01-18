@@ -122,27 +122,25 @@ async function main() {
 
   elAddNodeButton.onclick = () => {
     // add node as one or multiple comma separated values
-    if (elAddNodeID.value.trim()) {
-      const [node, group] = [elAddNodeID.value.trim(), elAddNodeGroup.value];
+    const id = elAddNodeID.value.trim();
+    const group = elAddNodeGroup.value;
+    if (id && group) {
       const json = JSON.parse(editor.getValue());
-      if (group) {
-        if (node.includes(",")) {
-          const nodes = node.split(",").map((node) => node.trim());
-          nodes.forEach((node) => {
-            if (!json.nodes.map((n) => n.id).includes(node)) {
-              json.nodes.push({ id: node, group: Number(group) });
-            }
-          });
-        } else {
+      let nodes = [id];
+      if (id.includes(",")) {
+        nodes = id.split(",").map((node) => node.trim());
+      }
+      nodes.forEach((node) => {
+        if (node.trim()) {
           if (!json.nodes.map((n) => n.id).includes(node)) {
             json.nodes.push({ id: node, group: Number(group) });
           }
         }
-        editor.setValue(JSON.stringify(json, null, 2));
-        save();
-        elAddNodeID.value = "";
-        elAddNodeID.focus();
-      }
+      });
+      editor.setValue(JSON.stringify(json, null, 2));
+      save();
+      elAddNodeID.value = "";
+      elAddNodeID.focus();
     }
   };
 
@@ -234,34 +232,30 @@ async function main() {
 
   elRenameButton.onclick = () => {
     // rename all occurrances of a node id from both nodes and links
-    if (elRenameTo.value.trim()) {
-      const [from, to] = [elRenameFrom.value, elRenameTo.value];
+    const to = elRenameTo.value.trim();
+    if (to && !to.includes(",")) {
       const json = JSON.parse(editor.getValue());
-
-      if (json.nodes.some((node) => node.id === from)) {
-        json.nodes = json.nodes.map((node) => {
-          if (node.id === from) {
-            node.id = to;
-          }
+      json.nodes = json.nodes.map((node) => {
+        if (node.id === elRenameFrom.value) {
+          return { ...node, id: to };
+        } else {
           return node;
-        });
-
-        json.links = json.links.map((link) => {
-          if (link.source === from) {
-            link.source = to;
-          }
-          if (link.target === from) {
-            link.target = to;
-          }
+        }
+      });
+      json.links = json.links.map((link) => {
+        if (link.source === elRenameFrom.value) {
+          return { ...link, source: to };
+        } else if (link.target === elRenameFrom.value) {
+          return { ...link, target: to };
+        } else {
           return link;
-        });
-
-        editor.setValue(JSON.stringify(json, null, 2));
-        save();
-        elRenameFrom.value = "";
-        elRenameTo.value = "";
-        elRenameFrom.focus();
-      }
+        }
+      });
+      editor.setValue(JSON.stringify(json, null, 2));
+      save();
+      elRenameFrom.value = "";
+      elRenameTo.value = "";
+      elRenameFrom.focus();
     }
   };
 
