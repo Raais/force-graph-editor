@@ -40,7 +40,8 @@ async function main() {
 
   let editorData = emptyData;
   // sample data - miserables.json
-  if (params.get("new") !== "true") editorData = await fetchData("sample/miserables.json");
+  if (params.get("new") !== "true")
+    editorData = await fetchData("sample/miserables.json");
 
   // json code editor
   const editor = CodeMirror(elDataEditor, {
@@ -121,25 +122,27 @@ async function main() {
 
   elAddNodeButton.onclick = () => {
     // add node as one or multiple comma separated values
-    const [node, group] = [elAddNodeID.value.trim(), elAddNodeGroup.value];
-    const json = JSON.parse(editor.getValue());
-    if (group) {
-      if (node.includes(",")) {
-        const nodes = node.split(",").map((node) => node.trim());
-        nodes.forEach((node) => {
+    if (elAddNodeID.value.trim()) {
+      const [node, group] = [elAddNodeID.value.trim(), elAddNodeGroup.value];
+      const json = JSON.parse(editor.getValue());
+      if (group) {
+        if (node.includes(",")) {
+          const nodes = node.split(",").map((node) => node.trim());
+          nodes.forEach((node) => {
+            if (!json.nodes.map((n) => n.id).includes(node)) {
+              json.nodes.push({ id: node, group: Number(group) });
+            }
+          });
+        } else {
           if (!json.nodes.map((n) => n.id).includes(node)) {
             json.nodes.push({ id: node, group: Number(group) });
           }
-        });
-      } else {
-        if (!json.nodes.map((n) => n.id).includes(node)) {
-          json.nodes.push({ id: node, group: Number(group) });
         }
+        editor.setValue(JSON.stringify(json, null, 2));
+        save();
+        elAddNodeID.value = "";
+        elAddNodeID.focus();
       }
-      editor.setValue(JSON.stringify(json, null, 2));
-      save();
-      elAddNodeID.value = "";
-      elAddNodeID.focus();
     }
   };
 
@@ -231,32 +234,34 @@ async function main() {
 
   elRenameButton.onclick = () => {
     // rename all occurrances of a node id from both nodes and links
-    const [from, to] = [elRenameFrom.value, elRenameTo.value];
-    const json = JSON.parse(editor.getValue());
+    if (elRenameTo.value.trim()) {
+      const [from, to] = [elRenameFrom.value, elRenameTo.value];
+      const json = JSON.parse(editor.getValue());
 
-    if (json.nodes.some((node) => node.id === from)) {
-      json.nodes = json.nodes.map((node) => {
-        if (node.id === from) {
-          node.id = to;
-        }
-        return node;
-      });
+      if (json.nodes.some((node) => node.id === from)) {
+        json.nodes = json.nodes.map((node) => {
+          if (node.id === from) {
+            node.id = to;
+          }
+          return node;
+        });
 
-      json.links = json.links.map((link) => {
-        if (link.source === from) {
-          link.source = to;
-        }
-        if (link.target === from) {
-          link.target = to;
-        }
-        return link;
-      });
+        json.links = json.links.map((link) => {
+          if (link.source === from) {
+            link.source = to;
+          }
+          if (link.target === from) {
+            link.target = to;
+          }
+          return link;
+        });
 
-      editor.setValue(JSON.stringify(json, null, 2));
-      save();
-      elRenameFrom.value = "";
-      elRenameTo.value = "";
-      elRenameFrom.focus();
+        editor.setValue(JSON.stringify(json, null, 2));
+        save();
+        elRenameFrom.value = "";
+        elRenameTo.value = "";
+        elRenameFrom.focus();
+      }
     }
   };
 
