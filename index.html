@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@200&family=Source+Sans+Pro&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Force Graph</title>
+
+    <link rel="stylesheet" href="stylesheets/style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/dracula.min.css"
+    />
+    <link rel="stylesheet" href="stylesheets/autocomplete.css" />
+  </head>
+
+  <body>
+    <div class="split left">
+      <div class="left-1">
+        <div class="mb-4">
+          <button type="button" id="save-btn" class="btn btn-success">
+            Save
+          </button>
+          <button type="button" id="cpy-btn" class="btn btn-light">
+            Copy to clipboard
+          </button>
+          <button type="button" id="pst-btn" class="btn btn-light">
+            Try import from clipboard
+          </button>
+          <button type="button" id="clr-btn" class="btn btn-warning">
+            Clear
+          </button>
+        </div>
+
+        <div class="row g-1 mb-2">
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="add-node-id"
+              placeholder="id"
+            />
+          </div>
+          <div class="col-md-4">
+            <input
+              type="number"
+              class="form-control"
+              id="add-node-grp"
+              placeholder="group"
+            />
+          </div>
+          <div class="col">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="add-node-btn"
+            >
+              Add Node
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-1 mb-4">
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="add-link-src"
+              placeholder="source"
+            />
+          </div>
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="add-link-tgt"
+              placeholder="target"
+            />
+          </div>
+          <div class="col-md-2">
+            <input
+              type="number"
+              class="form-control"
+              id="add-link-val"
+              placeholder="value"
+              value="1"
+            />
+          </div>
+          <div class="col">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="add-link-btn"
+            >
+              Add Link
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-1 mb-2">
+          <div class="col-md-8">
+            <input
+              type="text"
+              class="form-control"
+              id="remove-node-id"
+              placeholder="node"
+            />
+          </div>
+          <div class="col">
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              id="remove-node-btn"
+            >
+              Remove Node
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-1 mb-4">
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="remove-link-src"
+              placeholder="source"
+            />
+          </div>
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="remove-link-tgt"
+              placeholder="target"
+            />
+          </div>
+          <div class="col">
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              id="remove-link-btn"
+            >
+              Remove Link
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-1 mb-2">
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="rename-from"
+              placeholder="from"
+            />
+          </div>
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="rename-to"
+              placeholder="to"
+            />
+          </div>
+          <div class="col">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="rename-btn"
+            >
+              Rename
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="left-2">
+        <div id="data-editor"></div>
+      </div>
+      <div class="left-3">
+        <p id="status">Status</p>
+      </div>
+    </div>
+
+    <div class="split right">
+      <div class="right-topleft">
+        <input
+          type="checkbox"
+          class="btn-check"
+          id="3d-toggle"
+          autocomplete="off"
+        />
+        <label class="btn btn-outline-primary" for="3d-toggle">3D</label><br />
+      </div>
+
+      <div id="graph"></div>
+    </div>
+
+    <script src="https://unpkg.com/three@0.148.0/build/three.js"></script>
+    <script src="https://unpkg.com/three-spritetext@1.6.5/dist/three-spritetext.min.js"></script>
+    <script src="https://unpkg.com/3d-force-graph@1.70.19/dist/3d-force-graph.min.js"></script>
+    <script src="https://unpkg.com/force-graph@1.42.18/dist/force-graph.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
+      integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
+    <script src="scripts/index.js"></script>
+
+
+  </body>
+
+  
+</html>
