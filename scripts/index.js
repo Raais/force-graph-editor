@@ -642,6 +642,11 @@ async function main() {
     }
     return url.protocol === "http:" || url.protocol === "https:";
   }
+  
+  function debugeval(str) {
+    console.log(eval(str));
+  }
+  window.debugeval = debugeval;
 }
 main();
 
